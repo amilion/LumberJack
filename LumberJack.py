@@ -15,7 +15,8 @@ branch_width = 10
 branch_height = 4
 jack_width = 4
 jack_chr = "$"
-level_dict = {"easy": 40, "medium": 60, "hard": 80, "insane": 90}
+
+branch_prob_level = {"easy": 40, "medium": 60, "hard": 80, "insane": 90}
 
 world = []
 track_of_branches = [0] * (
@@ -61,7 +62,7 @@ def generate_initial_branches():
 
 
 def generate_branch():
-    prob_of_branch_generation = level_dict[level] / 100
+    prob_of_branch_generation = branch_prob_level[level] / 100
     if prob_of_branch_generation > random.random():
         if random.random() > 0.5 and track_of_branches[-1] != 1:
             # left branch generation
@@ -115,20 +116,22 @@ def refresh_branch(clear: bool = False):
             )
 
 
-def draw_world():
+def draw_world(score: int):
     refresh_branch()
     for row in range(lines - 1):
         for col in range(cols - 1):
             stdscr.addch(row, col, world[row][col])
+    stdscr.addstr(lines // 4, lines // 2, f"score = {score}", curses.A_BOLD)
 
 
 def main():
     stdscr.clear()
     is_playing = True
     loc_of_jack = -1  # -1 for left, 1 for right
+    score = 0
     generate_intial_world()
     while is_playing:
-        draw_world()
+        draw_world(score=score)
         stdscr.refresh()
 
         # move jack
@@ -153,6 +156,8 @@ def main():
         # game condition
         if loc_of_jack == track_of_branches[0]:
             is_playing = False
+        else:
+            score += 1
 
 
 main()
