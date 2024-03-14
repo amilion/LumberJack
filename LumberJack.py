@@ -75,24 +75,30 @@ def generate_branch(row: int):
     track_of_branches.pop(0)
 
 
-def generate_jack(side: str):
+def control_jack(side: str, delete: bool = False):
+    chr = jack_chr
+    if delete:
+        chr = " "
     if side == "left":
         for row in range(lines - branch_height - 1, lines):
             for col in range(start_of_tree - jack_width - 1, start_of_tree - 1):
-                world[row][col] = jack_chr
+                world[row][col] = chr
     elif side == "right":
         for row in range(lines - branch_height - 1, lines):
             for col in range(end_of_tree + 1, end_of_tree + 1 + jack_width):
-                world[row][col] = jack_chr
+                world[row][col] = chr
     else:
         raise KeyError(f"the side {side} is not defiened!")
 
 
-def draw_world():
+def generate_intial_world():
     generate_environment()
     generate_tree()
     generate_initial_branches()
-    generate_jack("left")
+    control_jack("left")
+
+
+def draw_world():
     for row in range(lines - 1):
         for col in range(cols - 1):
             stdscr.addch(row, col, world[row][col])
@@ -100,10 +106,23 @@ def draw_world():
 
 def main():
     stdscr.clear()
-
-    draw_world()
-
-    stdscr.refresh()
+    is_playing = True
+    loc_of_jack = -1  # -1 for left, 1 for right
+    generate_intial_world()
+    while is_playing:
+        draw_world()
+        stdscr.refresh()
+        key = stdscr.getch()
+        if key == ord("d") or key == ord("D"):
+            control_jack("right")
+            if loc_of_jack == -1:
+                control_jack("left", True)
+            loc_of_jack = 1
+        elif key == ord("a") or key == ord("A"):
+            control_jack("left")
+            if loc_of_jack == 1:
+                control_jack("right", True)
+            loc_of_jack = -1
 
 
 main()
