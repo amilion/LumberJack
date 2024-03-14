@@ -9,15 +9,18 @@ lines = curses.LINES
 cols = curses.COLS
 environment_chr = " "
 tree_chr = "|"
-branch_chr = "_"
+branch_chr = "="
 tree_width = 20
 branch_width = 10
 branch_height = 3
 jack_width = 3
 jack_chr = "$"
+level_dict = {"easy": 40, "medium": 60, "hard": 80, "insane": 90}
 
 world = []
-level_dict = {"easy": 40, "medium": 60, "hard": 80, "insane": 90}
+track_of_branches = [0] * (
+    (lines) // branch_height
+)  # 0 no branch, 1 right branch, -1 left branch
 
 start_of_tree = cols // 2 - int(tree_width / 2)
 end_of_tree = cols // 2 + int(tree_width / 2)
@@ -50,20 +53,26 @@ def branch_drawer(side: str, row: int):
 
 
 def generate_initial_branches():
-    for row in range(0, lines - branch_height * 4, branch_height):
+    for row in range(lines - branch_height * 4, 0, -branch_height):
         generate_branch(row)
 
 
 def generate_branch(row: int):
     prob_of_branch_generation = level_dict[level] / 100
     if prob_of_branch_generation > random.random():
-        if random.random() > 0:
-            if random.random() > 0.5:
-                # left branch generation
-                branch_drawer("left", row)
-            else:
-                # right branch generation
-                branch_drawer("right", row)
+        if random.random() > 0.5 and track_of_branches[-1] != 1:
+            # left branch generation
+            branch_drawer("left", row)
+            track_of_branches.append(-1)
+        elif track_of_branches[-1] != -1:
+            # right branch generation
+            branch_drawer("right", row)
+            track_of_branches.append(1)
+        else:
+            track_of_branches.append(0)
+    else:
+        track_of_branches.append(0)
+    track_of_branches.pop(0)
 
 
 def generate_jack(side: str):
