@@ -4,7 +4,7 @@ import curses
 stdscr = curses.initscr()
 curses.noecho()
 
-level = "easy"  # the choises are 'easy', 'medium', 'hard', and 'insane'
+level = "insane"  # the choises are 'easy', 'medium', 'hard', and 'insane'
 lines = curses.LINES
 cols = curses.COLS
 environment_chr = " "
